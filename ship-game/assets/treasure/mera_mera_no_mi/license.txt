@@ -1,0 +1,11 @@
+Model Information:
+* title:	Mera Mera no mi
+* source:	https://sketchfab.com/3d-models/mera-mera-no-mi-fa5917df5a214e4c9f3ec30d8688771c
+* author:	Yassine.El.Affany (https://sketchfab.com/Yassine.El.Affany)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Mera Mera no mi" (https://sketchfab.com/3d-models/mera-mera-no-mi-fa5917df5a214e4c9f3ec30d8688771c) by Yassine.El.Affany (https://sketchfab.com/Yassine.El.Affany) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
