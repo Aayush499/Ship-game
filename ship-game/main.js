@@ -41,7 +41,7 @@ update(){
     
     this.boat.rotation.y += this.speed.rotation
     this.boat.translateZ(this.speed.velocity)
-    if((Math.round(Date.now() / 1000)- curt) > 10)
+    if((Math.round(Date.now() / 1000)- curt) >=10)
     {
       playerx = this.boat.position.x
       playerz = this.boat.position.z
@@ -129,9 +129,7 @@ async function createFruit(){
   return new Fruit(boatModel.clone())
 }
 
-createFruit().then(fruit =>{
-  console.log("Trash")
-})
+ 
 let enemy = new Enemy();
 let enemy2 = new Enemy();
 let enemy3 = new Enemy();
@@ -165,6 +163,11 @@ class Canon{
     {
     this.canon.lookAt(playerx,30,playerz)
     this.canon.translateZ(this.speed.velocity)
+    if( ((Date.now() / 1000)-curt )>=9.499999)
+      {
+        this.canon.position.x = enemy.enemy.position.x
+        this.canon.position.z = enemy.enemy.position.z
+      }
     }
   }
 }
@@ -320,10 +323,35 @@ function checkColissions(){
     fruits.forEach(fruit =>{
       if(fruit.fruit){
         if(isColliding(boat.boat, fruit.fruit)){
+          console.log("TREASURE")
           scene.remove(fruit.fruit)
+          fruit.fruit.position.x=1000;
         }
       }
     })
+  }
+}
+
+function checkCanonColissions(){
+  if(boat.boat){
+   
+      if(canon.canon){
+        if(isColliding(boat.boat, canon.canon)){
+          console.log("HIT")
+          
+          canon.canon.position.x = enemy.enemy.position.x
+          canon.canon.position.z = enemy.enemy.position.z
+        }
+         
+        else if(Math.abs(canon.canon.position.x -playerx )<=10&& Math.abs(canon.canon.position.z - playerz)<=10){
+          console.log("EXPLODE")
+          
+          canon.canon.position.x = enemy.enemy.position.x
+          canon.canon.position.z = enemy.enemy.position.z
+        }
+        
+      }
+    
   }
 }
 function animate() {
@@ -331,14 +359,17 @@ function animate() {
   
   requestAnimationFrame( animate );
   render(); 
+  canon.update()
   boat.update()
   enemy.update()
   enemy2.update()
   enemy3.update()
-  canon.update()
-  checkColissions()
   
-  console.log(curt)
+  checkColissions()
+ 
+  checkCanonColissions()
+  
+ 
 }
 
 
