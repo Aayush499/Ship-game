@@ -11,6 +11,7 @@ let camera, scene, renderer;
 let controls, water, sun;
 let playerx ,playerz
 const loaders = new GLTFLoader();
+let curt  = Math.round(Date.now() / 1000); // 1405792937
 
 function random(min, max){
 return Math.random()*(max-min)+min
@@ -25,7 +26,8 @@ class Boat {
   gltf.scene.scale.set(3, 3, 3)
       gltf.scene.position.set(5,2,50)
       gltf.scene.rotation.y = 1.5
-    
+    playerx = 5
+    playerz = 50
   this.boat = gltf.scene
   this.speed = {
     velocity :0.0,
@@ -39,13 +41,19 @@ update(){
     
     this.boat.rotation.y += this.speed.rotation
     this.boat.translateZ(this.speed.velocity)
+    if((Math.round(Date.now() / 1000)- curt) > 10)
+    {
+      playerx = this.boat.position.x
+      playerz = this.boat.position.z
+      curt = Math.round(Date.now() / 1000)
+    }
     //camera.translateX(-this.speed.velocity)
     // camera.position.x = this.boat.position.x
     // camera.position.z = this.boat.position.z
     // camera.position.x = this.boat.position.x-50
     // camera.position.z = this.boat.position.z-50
-    playerx = this.boat.position.x
-    playerz = this.boat.position.z
+    // playerx = this.boat.position.x
+    // playerz = this.boat.position.z
     // console.log(camera.position)
   }
 }
@@ -63,11 +71,35 @@ class Enemy{
     loaders.load("assets/boat/marine_ship/scene.gltf",(gltf)=>{
     scene.add(gltf.scene)
     gltf.scene.scale.set(0.05, 0.05, 0.05)
-    gltf.scene.position.set(0,-3,0)
+    gltf.scene.position.set(random(-500,500),3,random(-500,500))
     this.enemy = gltf.scene
+    this.speed = {
+      velocity :0.05,
+      rotation :0.0 
+    }
   }
     )
-}}
+}
+update()
+{
+  if(boat.boat&& this.enemy)
+  {
+    
+    this.enemy.rotation.y += this.speed.rotation
+    this.enemy.translateZ(this.speed.velocity)
+    this.enemy.lookAt(boat.boat.position.x,boat.boat.position.y,boat.boat.position.z)
+    //camera.translateX(-this.speed.velocity)
+    // camera.position.x = this.boat.position.x
+    // camera.position.z = this.boat.position.z
+    // camera.position.x = this.boat.position.x-50
+    // camera.position.z = this.boat.position.z-50
+    // playerx = this.boat.position.x
+    // playerz = this.boat.position.z
+    // console.log(camera.position)
+  }
+}
+}
+
 
 class Fruit{
   constructor(_scene){
@@ -79,6 +111,7 @@ class Fruit{
     
 }
 
+ 
 async function loadModel(url)
 {
   return new Promise((resolve,reject)=>{
@@ -99,8 +132,44 @@ async function createFruit(){
 createFruit().then(fruit =>{
   console.log("Trash")
 })
-//let marine = new Enemy();
+let enemy = new Enemy();
+let enemy2 = new Enemy();
+let enemy3 = new Enemy();
 
+class Canon{
+  constructor(){
+    loaders.load("assets/canon/canon/scene.gltf",(gltf)=>{
+    scene.add(gltf.scene)
+    
+    gltf.scene.position.set(enemy.enemy.position.x,30,enemy.enemy.position.z )
+    gltf.scene.scale.set(0.3, 0.3, 0.3)
+    //gltf.scene.rotation.y = 3
+    this.canon = gltf.scene
+    this.speed = {
+      velocity :0.5,
+      rotation :0.0 
+    }
+
+    // this.target=
+    // {
+    //   x :boat.boat.position.x, 
+    //   y : boat.boat.position.y
+    // }
+  }
+    )
+}
+
+  update()
+  {
+    if(this.canon)
+    {
+    this.canon.lookAt(playerx,30,playerz)
+    this.canon.translateZ(this.speed.velocity)
+    }
+  }
+}
+
+let canon = new Canon();
 let fruits = []
 let enemies = []
 const fruitCount = 10
@@ -263,7 +332,13 @@ function animate() {
   requestAnimationFrame( animate );
   render(); 
   boat.update()
+  enemy.update()
+  enemy2.update()
+  enemy3.update()
+  canon.update()
   checkColissions()
+  
+  console.log(curt)
 }
 
 
