@@ -89,19 +89,20 @@ async function loadModel(url)
 }
 
 let boatModel =null
-async function createTrash(){
+async function createFruit(){
 
   if(!boatModel)
   {boatModel = await loadModel("assets/treasure/mera_mera_no_mi/scene.gltf")}
   return new Fruit(boatModel.clone())
 }
 
-createTrash().then(trash =>{
+createFruit().then(fruit =>{
   console.log("Trash")
 })
 //let marine = new Enemy();
 
 let fruits = []
+let enemies = []
 const fruitCount = 10
 
 init();
@@ -204,7 +205,7 @@ async function init() {
 
   for(let i =0 ; i<fruitCount; i++)
   {
-    const fruit  = await createTrash()
+    const fruit  = await createFruit()
     fruits.push(fruit)
   }
 
@@ -249,7 +250,9 @@ function checkColissions(){
   if(boat.boat){
     fruits.forEach(fruit =>{
       if(fruit.fruit){
-        
+        if(isColliding(boat.boat, fruit.fruit)){
+          scene.remove(fruit.fruit)
+        }
       }
     })
   }
@@ -263,6 +266,32 @@ function animate() {
   checkColissions()
 }
 
+
+function drawString(ctx, text, posX, posY, textColor, rotation, font, fontSize) {
+  var lines = text.split("\n");
+  if (!rotation) rotation = 0;
+  if (!font) font = "'serif'";
+  if (!fontSize) fontSize = 16;
+  if (!textColor) textColor = '#000000';
+   ctx.save();
+   ctx.font = fontSize + "px " + font;
+   ctx.fillStyle = textColor;
+   ctx.translate(posX, posY);
+   ctx.rotate(rotation * Math.PI / 180);
+  for (i = 0; i < lines.length; i++) {
+     ctx.fillText(lines[i],0, i*fontSize);
+  }
+   ctx.restore();
+}
+ 
+ function run() {
+  var nbc = document.getElementById("nb").getContext('2d');
+  drawString(nbc, 'SCORE:01278765454', 60, 60, '#EE4',0,"Verdana",36);
+  drawString(nbc, '__________________________________Allianos Illegados__', 63, 20, '#F63',0,"verdana",12);
+  drawString(nbc, 'best lap: 20.2 s -  time: 20.2 sec ',85,85,'#a66',0,"Trebuchet MS",22);
+  drawString(nbc, 'DOWN ->',10,10,'#66a',90,"Trebuchet MS",24);
+  drawString(nbc, 'UP ->',500,72,'#66a',-90,"Trebuchet MS",24);
+ }
 function render() {
 
  
