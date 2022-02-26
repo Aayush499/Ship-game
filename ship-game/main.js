@@ -10,9 +10,19 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 let camera, scene, renderer;
 let controls, water, sun;
 let playerx ,playerz
+let starttime =1
+let scrtime = Math.round(Date.now() / 1000);
 const loaders = new GLTFLoader();
 let curt  = Math.round(Date.now() / 1000); // 1405792937
-
+let Pcurt  = Math.round(Date.now() / 1000); // 1405792937
+let shot =0
+let camang=1
+let phealth =5
+let enchk1 =0, cnchk2 =0, ench3 =0
+let dam1 =15
+let dam2 =30
+let dam3 =60
+let fruitscore= 0
 function random(min, max){
 return Math.random()*(max-min)+min
 }
@@ -36,7 +46,7 @@ class Boat {
 })
 }
 update(){
-  if(this.boat)
+  if(this.boat && phealth >0)
   {
     
     this.boat.rotation.y += this.speed.rotation
@@ -55,6 +65,11 @@ update(){
     // playerx = this.boat.position.x
     // playerz = this.boat.position.z
     // console.log(camera.position)
+  }
+  else if(phealth==0)
+  {
+    this.boat.translateY(0.5)
+    console.log("SEE YOU IN HEAVEN")
   }
 }
 
@@ -135,11 +150,16 @@ let enemy2 = new Enemy();
 let enemy3 = new Enemy();
 
 class Canon{
-  constructor(){
+  constructor(n){
     loaders.load("assets/canon/canon/scene.gltf",(gltf)=>{
     scene.add(gltf.scene)
     
-    gltf.scene.position.set(enemy.enemy.position.x,30,enemy.enemy.position.z )
+    if(n==1 && enemy.enemy)
+    {gltf.scene.position.set(enemy.enemy.position.x,30,enemy.enemy.position.z )}
+    else if(n==2 && enemy2.enemy2)
+    {gltf.scene.position.set(enemy2.enemy.position.x,30,enemy2.enemy.position.z )}
+    else if(n==3 && enemy3.enemy3)
+    {gltf.scene.position.set(enemy3.enemy.position.x,30,enemy3.enemy.position.z )}
     gltf.scene.scale.set(0.3, 0.3, 0.3)
     //gltf.scene.rotation.y = 3
     this.canon = gltf.scene
@@ -148,6 +168,7 @@ class Canon{
       rotation :0.0 
     }
 
+    this.rank = n 
     // this.target=
     // {
     //   x :boat.boat.position.x, 
@@ -159,20 +180,97 @@ class Canon{
 
   update()
   {
-    if(this.canon)
+    if(this.canon && boat.boat)
     {
     this.canon.lookAt(playerx,30,playerz)
     this.canon.translateZ(this.speed.velocity)
+    if(this.rank ==1)
+    {
     if( ((Date.now() / 1000)-curt )>=9.499999)
       {
         this.canon.position.x = enemy.enemy.position.x
         this.canon.position.z = enemy.enemy.position.z
       }
     }
+    else if( this.rank==2)
+    {
+      if( ((Date.now() / 1000)-curt )>=9.499999)
+      {
+      this.canon.position.x = enemy2.enemy.position.x
+      this.canon.position.z = enemy2.enemy.position.z
+      }
+    }
   }
+  else if( this.rank==3)
+  { if( ((Date.now() / 1000)-curt )>=9.499999)
+    {
+    this.canon.position.x = enemy3.enemy.position.x
+    this.canon.position.z = enemy3.enemy.position.z
+    } }
+}
+    }
+
+
+class PlayerCanon{
+constructor(){
+  loaders.load("assets/canon/canon/scene.gltf",(gltf)=>{
+  scene.add(gltf.scene)
+   gltf.scene.position.set(boat.boat.position.x,30,boat.boat.position.z )
+   
+  gltf.scene.scale.set(0.3, 0.3, 0.3)
+  //gltf.scene.rotation.y = 3
+  this.canon = gltf.scene
+  this.speed = {
+    velocity :0.7,
+    rotation :0.0 
+  }
+ 
+  // this.target=
+  // {
+  //   x :boat.boat.position.x, 
+  //   y : boat.boat.position.y
+  // }
+}
+  )
 }
 
-let canon = new Canon();
+update()
+{
+  if(this.canon)
+  {
+    if(!shot)
+    {
+  this.canon.rotation.y = boat.boat.rotation.y
+  this.canon.position.x = boat.boat.position.x
+  this.canon.position.z = boat.boat.position.z
+    }
+    else if (shot==1)
+{
+   if(starttime)
+   {
+  Pcurt = Math.round(Date.now() / 1000);
+  starttime =0
+   }
+  this.canon.translateZ(this.speed.velocity)
+  console.log("GOOOO")
+  if(Math.round(Date.now() / 1000)-Pcurt >=7)
+  {
+    this.canon.position.set(boat.boat.position.x,30,boat.boat.position.z )
+    shot =0
+    starttime= 1
+  }
+}
+   
+}
+
+ 
+}
+  }
+
+  let pcanon = new PlayerCanon()
+let canon = new Canon(1);
+let canon2 = new Canon(2);
+let canon3 = new Canon(3);
 let fruits = []
 let enemies = []
 const fruitCount = 10
@@ -295,6 +393,18 @@ async function init() {
     if(e.key == "a"){
       boat.speed.rotation = 0.1
     }
+    if(e.key == " "){
+      shot =1
+      console.log("SPACE") 
+    }
+    if(e.key == "1"){
+      camang =1
+       
+    }
+    if(e.key == "2"){
+      camang =2
+       
+    }
   })
   window.addEventListener( 'keyup', function(e){
     boat.stop()
@@ -324,6 +434,7 @@ function checkColissions(){
       if(fruit.fruit){
         if(isColliding(boat.boat, fruit.fruit)){
           console.log("TREASURE")
+          fruitscore++
           scene.remove(fruit.fruit)
           fruit.fruit.position.x=1000;
         }
@@ -337,17 +448,105 @@ function checkCanonColissions(){
    
       if(canon.canon){
         if(isColliding(boat.boat, canon.canon)){
-          console.log("HIT")
-          
+          //console.log("HIT")
+          phealth--
           canon.canon.position.x = enemy.enemy.position.x
           canon.canon.position.z = enemy.enemy.position.z
         }
          
         else if(Math.abs(canon.canon.position.x -playerx )<=10&& Math.abs(canon.canon.position.z - playerz)<=10){
-          console.log("EXPLODE")
+          //console.log("EXPLODE")
           
           canon.canon.position.x = enemy.enemy.position.x
           canon.canon.position.z = enemy.enemy.position.z
+        }
+        
+      }
+    
+  }
+}
+
+function checkCanonPColissions(){
+  if(boat.boat){
+   
+      if(pcanon.canon && enemy.enemy && enemy2.enemy && enemy3.enemy){
+        if(isColliding(pcanon.canon, enemy.enemy)    ){
+          console.log("HIT ENEMY1")
+          dam1--
+        }
+        if(isColliding(pcanon.canon, enemy2.enemy))
+        {
+          console.log("HIT ENEMY2")
+          dam2--
+        }
+        if(isColliding(pcanon.canon, enemy3.enemy))
+        {
+          console.log("HIT ENEMY3")
+          dam3--
+        }
+         
+        
+      }
+    
+  }
+}
+
+
+function cameraSetter(){
+  if(boat.boat){
+    if(camang==1)
+    {
+       camera.position.set(boat.boat.position.x-100, boat.boat.position.y+19, boat.boat.position.z+50 )
+       camera.lookAt(boat.boat.position)
+    }
+    else if(camang ==2)
+    {
+      camera.position.set(boat.boat.position.x , 600, boat.boat.position.z  )
+      camera.lookAt(boat.boat.position)
+    }
+    
+  }
+}
+
+function checkCanon2Colissions(){
+  if(boat.boat){
+   
+      if(canon2.canon){
+        if(isColliding(boat.boat, canon2.canon)){
+          //console.log("HIT")
+          phealth--
+          canon2.canon.position.x = enemy2.enemy.position.x
+          canon2.canon.position.z = enemy2.enemy.position.z
+        }
+         
+        else if(Math.abs(canon2.canon.position.x -playerx )<=10&& Math.abs(canon2.canon.position.z - playerz)<=10){
+          //console.log("EXPLODE")
+          
+          canon2.canon.position.x = enemy2.enemy.position.x
+          canon2.canon.position.z = enemy2.enemy.position.z
+        }
+        
+      }
+    
+  }
+}
+
+function checkCanon3Colissions(){
+  if(boat.boat){
+   
+      if(canon3.canon){
+        if(isColliding(boat.boat, canon.canon)){
+          //console.log("HIT")
+          phealth--
+          canon3.canon.position.x = enemy3.enemy.position.x
+          canon3.canon.position.z = enemy3.enemy.position.z
+        }
+         
+        else if(Math.abs(canon3.canon.position.x -playerx )<=10&& Math.abs(canon3.canon.position.z - playerz)<=10){
+          //console.log("EXPLODE")
+          
+          canon3.canon.position.x = enemy3.enemy.position.x
+          canon3.canon.position.z = enemy3.enemy.position.z
         }
         
       }
@@ -358,46 +557,54 @@ function animate() {
 
   
   requestAnimationFrame( animate );
-  render(); 
+  render();
+  pcanon.update() 
   canon.update()
+  canon2.update()
+  canon3.update()
   boat.update()
+  if(dam1>0)
+  {
   enemy.update()
-  enemy2.update()
-  enemy3.update()
-  
-  checkColissions()
- 
-  checkCanonColissions()
-  
- 
-}
-
-
-function drawString(ctx, text, posX, posY, textColor, rotation, font, fontSize) {
-  var lines = text.split("\n");
-  if (!rotation) rotation = 0;
-  if (!font) font = "'serif'";
-  if (!fontSize) fontSize = 16;
-  if (!textColor) textColor = '#000000';
-   ctx.save();
-   ctx.font = fontSize + "px " + font;
-   ctx.fillStyle = textColor;
-   ctx.translate(posX, posY);
-   ctx.rotate(rotation * Math.PI / 180);
-  for (i = 0; i < lines.length; i++) {
-     ctx.fillText(lines[i],0, i*fontSize);
   }
-   ctx.restore();
+  else{
+    enemy.enemy.translateY(-1)
+  }
+  if(dam2>0)
+  {
+  enemy2.update()
+  }
+  else{
+    enemy2.enemy.translateY(-1)
+  }
+  if(dam3 >0)
+  {
+  enemy3.update()
+  }
+  else{
+    enemy3.enemy.translateY(-1)
+  }
+  checkCanonPColissions()
+  checkColissions() 
+  checkCanonColissions()
+  checkCanon2Colissions()
+  checkCanon3Colissions()
+  cameraSetter()
+  document.getElementById("p1").innerHTML = phealth
+  document.getElementById("p2").innerHTML = fruitscore+ 2*(15-dam1) + 2*(30-dam2) + 2*(60-dam3)
+  document.getElementById("p3").innerHTML = Math.round(Date.now() / 1000) - scrtime;
+  document.getElementById("p4").innerHTML = fruitscore
+
+  if(dam1<=0 && dam2<=0 && dam3<=0)
+  {
+    document.getElementById("p5").innerHTML = "YOU WIN BRO"
+  }
+  else if(phealth<=0)
+  {
+    document.getElementById("p5").innerHTML = "UNFORTUNATE GAME BRO"
+  }
 }
  
- function run() {
-  var nbc = document.getElementById("nb").getContext('2d');
-  drawString(nbc, 'SCORE:01278765454', 60, 60, '#EE4',0,"Verdana",36);
-  drawString(nbc, '__________________________________Allianos Illegados__', 63, 20, '#F63',0,"verdana",12);
-  drawString(nbc, 'best lap: 20.2 s -  time: 20.2 sec ',85,85,'#a66',0,"Trebuchet MS",22);
-  drawString(nbc, 'DOWN ->',10,10,'#66a',90,"Trebuchet MS",24);
-  drawString(nbc, 'UP ->',500,72,'#66a',-90,"Trebuchet MS",24);
- }
 function render() {
 
  

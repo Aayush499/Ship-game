@@ -2,3 +2,61 @@
   margin: 0;
   padding: 0;
 }
+
+*{
+  margin: 0;
+  padding: 0;
+  width:100%;
+  height:100%;
+}
+
+#info {
+    position: absolute;
+    width: 350px;
+    height: 50px;
+    text-align: center;
+    z-index: 200;
+    /* display:block; */
+    /* border: red 2px ridge; */
+}
+
+#Game_Over {
+    position: absolute;
+    left: 750px;
+    width: 350px;
+    height: 250px;
+    text-align: center;
+    z-index: 200;
+    display:none;
+}
+
+#controls {
+    position: absolute;
+    left: 1500px;
+    width: 400px;
+    height: 50px;
+    text-align: center;
+    z-index: 200;
+    /* display:block; */
+    /* color: lavendergray; */
+    /* border: white 2px ridge; */
+}
+
+#game_title{
+    font-size: 200%;
+    text-shadow: white 2px 2px;
+    color: red;
+    padding-top: -50px;
+}
+
+#health{
+    color: green;
+    font-size: 150%;
+    margin-top: -20px;
+}
+
+#stats{
+    color: rgb(51, 14, 20);
+    font-size: 150%;
+    margin-top: -20px;
+}
